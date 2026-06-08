@@ -1,19 +1,24 @@
 package main
 
 import (
-	"log"
-	"net/http"
+    "log"
+    "net/http"
 
-	"github.com/cloud-cost-iq/internals/api"
+    "github.com/cloud-cost-iq/config"
+    "github.com/cloud-cost-iq/internals/api"
 )
 
 func main() {
-	router := api.NewRouter()
+    cfg, err := config.Load()
+    if err != nil {
+        log.Fatal(err)
+    }
 
-	log.Println("API listening on :8080")
+    router := api.NewRouter()
 
-	err := http.ListenAndServe(":8080", router)
-	if err != nil {
-		log.Fatal(err)
-	}
+    log.Printf("API listening on :%s", cfg.Port)
+
+    if err = http.ListenAndServe(":"+cfg.Port, router); err != nil {
+        log.Fatal(err)
+    }
 }
