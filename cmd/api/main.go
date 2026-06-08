@@ -3,10 +3,12 @@ package main
 import (
     "log"
     "net/http"
+	"context"
 
     "github.com/cloud-cost-iq/config"
     "github.com/cloud-cost-iq/internals/api"
 	"github.com/cloud-cost-iq/internals/db"
+	"github.com/cloud-cost-iq/internals/billing"
 )
 
 
@@ -23,6 +25,8 @@ func main() {
 	}
 
 	db.RunMigrations(cfg.DatabaseURL)
+	repo := billing.NewRepository(dbConn)
+	_ = billing.NewService(repo)
 
     router := api.NewRouter()
 
