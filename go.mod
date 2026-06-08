@@ -1,3 +1,5 @@
-module github.com/order-system/services/order
+module github.com/cloud-cost-iq
 
 go 1.26.3
+
+require github.com/go-chi/chi/v5 v5.3.0 // indirect
