@@ -4,15 +4,17 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/cloud-cost-iq/internals/aggregation"
 	"github.com/cloud-cost-iq/internals/billing"
 )
 
 type Handlers struct {
 	billingService *billing.Service
+	aggregationService *aggregation.Service
 }
 
-func NewHandlers(billingService *billing.Service) *Handlers {
-	return &Handlers{billingService: billingService}
+func NewHandlers(billingService *billing.Service, aggregationService *aggregation.Service) *Handlers {
+	return &Handlers{billingService: billingService, aggregationService: aggregationService}
 }
 
 func (h *Handlers) CreateCost(w http.ResponseWriter, r *http.Request) {
@@ -58,4 +60,11 @@ func (h *Handlers) GetDailySummary(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, summary)
+}
+
+func (h *Handlers) ExcuteDailySummaryJob(w http.ResponseWriter, r *http.Request){
+	ctx := r.Context()
+	h.aggregationService.BuildDailySummaries(ctx, time.Now())
+	w.WriteHeader(http.StatusCreated)
+	w.Write([]byte("Summary job initiated"))
 }

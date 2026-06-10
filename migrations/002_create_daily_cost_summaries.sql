@@ -1,4 +1,5 @@
-CREATE TABLE daily_cost_summaries (
+-- +goose Up
+CREATE TABLE IF NOT EXISTS daily_cost_summaries (
     summary_date DATE NOT NULL,
     service      TEXT NOT NULL,
 
