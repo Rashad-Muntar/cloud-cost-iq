@@ -26,9 +26,9 @@ func main() {
 
 	db.RunMigrations(cfg.DatabaseURL)
 	repo := billing.NewRepository(dbConn)
-	_ = billing.NewService(repo)
+	billingService := billing.NewService(repo)
 
-    router := api.NewRouter()
+    router := api.NewRouter(billingService)
 
     log.Printf("API listening on :%s", cfg.Port)
 

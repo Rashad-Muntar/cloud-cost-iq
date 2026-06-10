@@ -2,7 +2,9 @@ package billing
 
 import (
 	"context"
+	"strconv"
 	"time"
+
 	"github.com/cloud-cost-iq/internals/db"
 )
 
@@ -14,7 +16,7 @@ func NewRepository(database *db.Database) Repository {  // ← returns pointer t
     return &repository{db: database}
 }
 
-func (repo *repository) InsertCost(ctx context.Context, input RecordCostInput) error {
+func (repo *repository) InsertCost(ctx context.Context, input CostRecord) error {
 	query := `
 		INSERT INTO cost_events (
 			id, account_id, service, region,
@@ -42,14 +44,30 @@ func (repo *repository) InsertCost(ctx context.Context, input RecordCostInput) e
 func (repo *repository) GetDailyCostSummary(
 	ctx context.Context,
 	date time.Time,
+	accountID string,
+	service string,
 ) (*DailyCostSummary, error) {
 	query := `
 		SELECT service, COALESCE(SUM(cost_amount),0) FROM cost_events
-		WHERE DATE(usage_date) = DATE($1)
-		GROUP BY service
-		ORDER BY SUM(cost_amount) DESC
+		WHERE usage_date >= $1
+	  	AND usage_date < $2
 	`
-	rows, _ := repo.db.Pool.Query(ctx, query, date)
+	start := date.Truncate(24 * time.Hour)
+	end := start.Add(24 * time.Hour)
+	args := []any{start, end}
+
+if accountID != "" {
+	query += " AND account_id = $3"
+	args = append(args, accountID)
+}
+
+if service != "" {
+	query += " AND service = $" + strconv.Itoa(len(args)+1)
+	args = append(args, service)
+}
+
+query += " GROUP BY service ORDER BY SUM(cost_amount) DESC"
+	rows, _ := repo.db.Pool.Query(ctx, query, args...)
 	defer rows.Close()
 
 summary := &DailyCostSummary{}

@@ -9,12 +9,14 @@ import (
 type Repository interface {
 	InsertCost(
 		ctx context.Context,
-		input RecordCostInput,
+		input CostRecord,
 	) error
 
 	GetDailyCostSummary(
 		ctx context.Context,
 		date time.Time,
+		accountID string,
+		service string,
 	) (*DailyCostSummary, error)
 }
 
