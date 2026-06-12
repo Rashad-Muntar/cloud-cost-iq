@@ -24,7 +24,7 @@ func (r *repository) StoreCostEvent(
 	return r.billingRepo.InsertCost(
 		ctx,
 		billing.CostRecord{
-			AccountID: event.AccountID,
+			InternalID: event.InternalID,
 			Service: event.Service,
 			Region: event.Region,
 			CostAmount: event.Cost,

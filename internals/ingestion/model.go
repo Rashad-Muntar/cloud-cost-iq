@@ -5,7 +5,7 @@ import "time"
 type RawCostRecord struct {
 	Provider string // AWS
 
-	CloudAccountID string
+	AwsAccountID string
 
 	Service string
 

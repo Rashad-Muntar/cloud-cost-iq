@@ -24,9 +24,9 @@ func (r *repository) Create(ctx context.Context, input Account) (*Account, error
     `
     var account Account
     _, err := r.db.Pool.Exec(ctx, query,
-        input.ID,
+        input.InternalID,
         input.Name,
-        input.AWSAccountID,
+        input.AwsAccountID,
         input.CreatedAt,
         input.UpdatedAt,
 
@@ -44,8 +44,8 @@ func (r *repository) GetByAWSAccountID(ctx context.Context, awsID string) (*Acco
     `
     var account Account
     err := r.db.Pool.QueryRow(ctx, query, awsID).Scan(
-        &account.ID,
-        &account.AWSAccountID,
+        &account.InternalID,
+        &account.AwsAccountID,
         &account.Name,
         &account.Environment,
         &account.IsActive,
@@ -93,8 +93,8 @@ func (r *repository) List(ctx context.Context, filter AccountFilter) ([]*Account
     for rows.Next() {
         var account Account
         err := rows.Scan(
-            &account.ID,
-            &account.AWSAccountID,
+            &account.InternalID,
+            &account.AwsAccountID,
             &account.Name,
             &account.Environment,
             &account.IsActive,

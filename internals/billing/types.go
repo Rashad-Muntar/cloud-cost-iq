@@ -3,7 +3,6 @@ package billing
 import (
 	"context"
 	"time"
-	"github.com/google/uuid"
 )
 
 
@@ -52,9 +51,9 @@ type DailyCostSummary struct {
 }
 
 type RecordCostInput struct {
-	ID string `json:"id"`
+	InternalID string `json:"id"`
 
-	AccountID uuid.UUID `json:"account_id"`
+	AwsAccountID string `json:"account_id"`
 
 	Service string `json:"service"`
 	Region  string `json:"region"`

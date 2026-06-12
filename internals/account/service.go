@@ -16,13 +16,13 @@ func NewService(repo Repository) *Service {
 
 func (s *Service) Create(ctx context.Context, input CreateAccountInput) (*Account, error) {
     // Validation - senior reasoning: fail fast with clear errors
-    if input.AWSAccountID == "" {
+    if input.AwsAccountID == "" {
         return nil, fmt.Errorf("aws_account_id is required")
     }
 
     matched, _ := regexp.MatchString(
 	`^\d{12}$`,
-	input.AWSAccountID,
+	input.AwsAccountID,
 )
 
 if !matched {
@@ -34,16 +34,16 @@ if !matched {
     }
     
     // Check if account already exists
-    existing, _ := s.repo.GetByAWSAccountID(ctx, input.AWSAccountID)
+    existing, _ := s.repo.GetByAWSAccountID(ctx, input.AwsAccountID)
     if existing != nil {
-        return nil, fmt.Errorf("account with AWS ID %s already exists", input.AWSAccountID)
+        return nil, fmt.Errorf("account with AWS ID %s already exists", input.AwsAccountID)
     }
     
     now := time.Now()
     
     account := Account{
-        ID:          uuid.New(),
-        AWSAccountID:        input.AWSAccountID,
+        InternalID:          uuid.New(),
+        AwsAccountID:        input.AwsAccountID,
         Name:                input.Name,
         Environment:         input.Environment,
         CreatedAt:           now,

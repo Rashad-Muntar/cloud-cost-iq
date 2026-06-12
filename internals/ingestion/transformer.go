@@ -1,13 +1,11 @@
 package ingestion
 
-import (
-	"github.com/google/uuid"
-)
+import "github.com/google/uuid"
 
 func Transform(r RawCostRecord, internalAccountID uuid.UUID) NormalizedCostEvent {
 
 	return NormalizedCostEvent{
-		AccountID: internalAccountID,
+		InternalID: internalAccountID,
 
 		Service: r.Service,
 

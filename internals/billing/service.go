@@ -12,12 +12,12 @@ func NewService(repo Repository) *Service {
 	return &Service{repo: repo}
 }
 
-func (s *Service) RecordCost(ctx context.Context, accountID uuid.UUID, service, region string, cost, usage float64,) error {
+func (s *Service) RecordCost(ctx context.Context, accountID string, service, region string, cost, usage float64,) error {
 	normalizedService := strings.ToLower(service)
 	record := CostRecord{
-		ID: uuid.New(),
+		InternalID: uuid.New(),
 
-		AccountID: accountID,
+		AwsAccountID: accountID,
 		Service: normalizedService,
 		Region: region,
 

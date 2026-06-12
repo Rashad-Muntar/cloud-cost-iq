@@ -21,10 +21,10 @@ const (
 
 type Account struct {
     // Internal ID - for our system use only
-    ID uuid.UUID `json:"id"`
+    InternalID uuid.UUID `json:"id"`
     
     // AWS Account ID - immutable, from AWS
-    AWSAccountID string `json:"aws_account_id"`
+    AwsAccountID string `json:"account_id"`
     
     // Human-readable name
     Name string `json:"name"`
@@ -70,7 +70,7 @@ type Repository interface {
 }
 
 type CreateAccountInput struct {
-	AWSAccountID string
+	AwsAccountID string
 	Name string
 	Environment Environment
     CreatedAt time.Time

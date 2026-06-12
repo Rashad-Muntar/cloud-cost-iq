@@ -65,7 +65,7 @@ func (h *Handlers) CreateCost(w http.ResponseWriter, r *http.Request) {
 	var req billing.RecordCostInput
 	err := h.billingService.RecordCost(
 		ctx,
-		req.AccountID,
+		req.AwsAccountID,
 		req.Service,
 		req.Region,
 		req.CostAmount,

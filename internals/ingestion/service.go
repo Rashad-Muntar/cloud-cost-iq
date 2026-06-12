@@ -18,10 +18,10 @@ func NewService(repo Repository) *Service {
 func (s *Service) Ingest(
 	ctx context.Context,
 	raw RawCostRecord,
-	internalAccountID uuid.UUID,
+	id uuid.UUID,
 ) error {
 
-	event := Transform(raw, internalAccountID)
+	event := Transform(raw, id)
 
 	return s.repo.StoreCostEvent(ctx, event)
 }

@@ -6,8 +6,8 @@ import (
 )
 
 type CostRecord struct {
-	ID          uuid.UUID `db:"id"`
-    AccountID   uuid.UUID `db:"account_id"`  // ← NOW A UUID, NOT STRING!
+	InternalID          uuid.UUID `db:"id"`
+    AwsAccountID   string `db:"account_id"`  // ← NOW A UUID, NOT STRING!
     Service     string    `db:"service"`
     Region      string    `db:"region"`
     CostAmount  float64   `db:"cost_amount"`

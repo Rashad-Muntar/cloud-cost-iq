@@ -26,8 +26,8 @@ func (repo *repository) InsertCost(ctx context.Context, input CostRecord) error 
 		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
 	`
 	_, err := repo.db.Pool.Exec(ctx, query,
-		input.ID,
-		input.AccountID,
+		input.InternalID,
+		input.AwsAccountID,
 		input.Service,
 		input.Region,
 		input.CostAmount,
@@ -149,7 +149,7 @@ func (r *repository) GetCostsWithAccountFilter(ctx context.Context, filter Accou
     for rows.Next() {
         var result CostRecordWithAccount
         err := rows.Scan(
-            &result.ID, &result.AccountID, &result.Service, &result.Region,
+            &result.InternalID, &result.AwsAccountID, &result.Service, &result.Region,
             &result.CostAmount, &result.UsageAmount, &result.Currency,
             &result.UsageDate, &result.CreatedAt,
             &result.AccountName, &result.Environment, &result.AWSAccountID,

@@ -5,11 +5,15 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/google/uuid"
+
 	"github.com/cloud-cost-iq/config"
 	"github.com/cloud-cost-iq/internals/aggregation"
 	"github.com/cloud-cost-iq/internals/api"
 	"github.com/cloud-cost-iq/internals/billing"
 	"github.com/cloud-cost-iq/internals/db"
+	"github.com/cloud-cost-iq/internals/ingestion"
+	"github.com/cloud-cost-iq/internals/worker"
 )
 
 
@@ -28,10 +32,40 @@ func main() {
 	db.RunMigrations(cfg.DatabaseURL)
 	BillingRepo := billing.NewRepository(dbConn)
 	aggreagteRepo := aggregation.NewRepository(dbConn)
+	ingestionRepo := ingestion.NewRepository(BillingRepo)
 	billingService := billing.NewService(BillingRepo)
-	aggreagteService := aggregation.NewService(aggreagteRepo)
+	ingestionService := ingestion.NewService(ingestionRepo)
+	aggregateService := aggregation.NewService(aggreagteRepo)
 
-    router := api.NewRouter(billingService, aggreagteService)
+	queue := worker.NewQueue(1000)
+
+	processor := worker.NewProcessor(ingestionService)
+
+	pool := worker.NewPool(queue, 5, processor)
+
+	pool.Start(ctx)
+
+	queue.Push(worker.Job{
+	InternalID: uuid.New(),
+
+	Payload: ingestion.RawCostRecord{
+		Provider: "AWS",
+
+		AwsAccountID: "123456789012",
+
+		Service: "EC2",
+
+		Region: "us-east-1",
+
+		UsageAmount: 10,
+
+		CostAmount: 2.5,
+
+		Currency: "USD",
+	},
+	})
+
+    router := api.NewRouter(billingService, aggregateService)
 
     log.Printf("API listening on :%s", cfg.Port)
 

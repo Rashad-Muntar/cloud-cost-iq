@@ -3,12 +3,13 @@ package ingestion
 import (
 	"context"
 	"time"
+
 	"github.com/google/uuid"
 )
 
 
 type NormalizedCostEvent struct {
-	AccountID uuid.UUID
+	InternalID uuid.UUID
 
 	Service string
 
