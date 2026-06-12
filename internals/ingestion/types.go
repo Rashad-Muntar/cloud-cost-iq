@@ -22,6 +22,7 @@ type NormalizedCostEvent struct {
 	Currency string
 
 	Timestamp time.Time
+	IdempotencyKey string
 }
 
 type Repository interface {

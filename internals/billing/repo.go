@@ -24,6 +24,7 @@ func (repo *repository) InsertCost(ctx context.Context, input CostRecord) error 
 			currency, usage_date, created_at
 		)
 		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+		ON CONFLICT (idempotency_key) DO NOTHING
 	`
 	_, err := repo.db.Pool.Exec(ctx, query,
 		input.InternalID,

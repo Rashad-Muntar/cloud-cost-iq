@@ -18,5 +18,6 @@ func Transform(r RawCostRecord, internalAccountID uuid.UUID) NormalizedCostEvent
 		Currency: r.Currency,
 
 		Timestamp: r.UsageEnd,
+		IdempotencyKey: GenerateIdempotencyKey(r),
 	}
 }

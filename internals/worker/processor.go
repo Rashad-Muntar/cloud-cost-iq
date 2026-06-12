@@ -2,11 +2,14 @@ package worker
 
 import (
 	"context"
+	"time"
+
 	"github.com/cloud-cost-iq/internals/ingestion"
 )
 
 type Processor struct {
 	ingestionService *ingestion.Service
+	dlq              *DLQ
 }
 
 func NewProcessor(
@@ -23,9 +26,28 @@ func (p *Processor) Process(
 	job Job,
 ) error {
 
-	return p.ingestionService.Ingest(
-		ctx,
-		job.Payload,
-		job.InternalID,
-	)
+	maxRetries := 3
+
+	var err error
+
+	for i := 0; i < maxRetries; i++ {
+
+		err = p.ingestionService.Ingest(
+			ctx,
+			job.Payload,
+			job.InternalID,
+		)
+
+		if err == nil {
+			return nil
+		}
+
+		time.Sleep(time.Duration(i+1) * time.Second)
+	}
+	if err != nil {
+	p.dlq.Push(job)
+	return err
+	}
+
+	return err
 }
