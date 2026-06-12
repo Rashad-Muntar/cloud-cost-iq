@@ -3,18 +3,61 @@ package api
 import (
 	"net/http"
 	"time"
-
+	"encoding/json"
 	"github.com/cloud-cost-iq/internals/aggregation"
 	"github.com/cloud-cost-iq/internals/billing"
+	"github.com/cloud-cost-iq/internals/account"
 )
 
 type Handlers struct {
 	billingService *billing.Service
 	aggregationService *aggregation.Service
+	accountService *account.Service
 }
 
 func NewHandlers(billingService *billing.Service, aggregationService *aggregation.Service) *Handlers {
 	return &Handlers{billingService: billingService, aggregationService: aggregationService}
+}
+
+func (h *Handlers) CreateAccount(w http.ResponseWriter, r *http.Request) {
+    var input account.CreateAccountInput
+    
+    if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+        http.Error(w, "Invalid request body", http.StatusBadRequest)
+        return
+    }
+    
+    acc, err := h.accountService.Create(r.Context(), input)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusConflict)
+        return
+    }
+    
+    writeJSON(w, http.StatusCreated, acc)
+}
+
+
+
+func (h *Handlers) ListAccounts(w http.ResponseWriter, r *http.Request) {
+    filter := account.AccountFilter{}
+    
+    accounts, err := h.accountService.List(r.Context(), filter)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    
+    writeJSON(w, http.StatusOK, accounts)
+}
+
+func (h *Handlers) GetByAWSAccountID(w http.ResponseWriter, r *http.Request) {
+    awsID := r.URL.Query().Get("aws_id")
+    account, err := h.accountService.GetAccountByAWSID(r.Context(), awsID)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    writeJSON(w, http.StatusOK, account)
 }
 
 func (h *Handlers) CreateCost(w http.ResponseWriter, r *http.Request) {

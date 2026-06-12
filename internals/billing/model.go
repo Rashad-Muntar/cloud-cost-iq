@@ -1,11 +1,14 @@
 package billing
 
-import "time"
+import (
+	"time"
+	"github.com/google/uuid"
+)
 
 type CostRecord struct {
 	ID string
 
-	AccountID string
+	AccountID   uuid.UUID
 
 	Service string
 	Region  string

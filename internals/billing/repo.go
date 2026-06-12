@@ -95,3 +95,40 @@ for rows.Next() {
 }
 return summary, nil
 }
+
+// internal/api/handlers_account.go
+// Add this handler
+
+
+// // Optional: Add PATCH for partial updates (more RESTful)
+// func (h *Handlers) PatchAccount(w http.ResponseWriter, r *http.Request) {
+//     // Same as UpdateAccount but only updates provided fields
+//     // This is more RESTful than PUT for partial updates
+    
+//     idStr := chi.URLParam(r, "id")
+//     id, err := uuid.Parse(idStr)
+//     if err != nil {
+//         http.Error(w, "Invalid account ID format", http.StatusBadRequest)
+//         return
+//     }
+    
+//     var input account.UpdateAccountInput
+//     if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+//         http.Error(w, "Invalid request body", http.StatusBadRequest)
+//         return
+//     }
+    
+//     input.InternalID = id
+//     updated, err := h.accountService.UpdateAccount(r.Context(), input)
+//     if err != nil {
+//         if strings.Contains(err.Error(), "not found") {
+//             http.Error(w, err.Error(), http.StatusNotFound)
+//         } else {
+//             http.Error(w, err.Error(), http.StatusInternalServerError)
+//         }
+//         return
+//     }
+    
+//     writeJSON(w, http.StatusOK, updated)
+// }
+

@@ -3,6 +3,7 @@ package billing
 import (
 	"context"
 	"time"
+	"github.com/google/uuid"
 )
 
 
@@ -18,6 +19,8 @@ type Repository interface {
 		accountID string,
 		service string,
 	) (*DailyCostSummary, error)
+
+	// GetCostsByAccount(ctx context.Context, accountID uuid.UUID, startDate, endDate time.Time) ([]CostRecord, error)
 }
 
 type Service struct {
@@ -38,7 +41,7 @@ type DailyCostSummary struct {
 type RecordCostInput struct {
 	ID string `json:"id"`
 
-	AccountID string `json:"account_id"`
+	AccountID uuid.UUID `json:"account_id"`
 
 	Service string `json:"service"`
 	Region  string `json:"region"`

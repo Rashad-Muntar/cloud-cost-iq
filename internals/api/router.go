@@ -24,5 +24,8 @@ func NewRouter(billingService *billing.Service, aggregationService *aggregation.
 	r.Post("/costs", handler.CreateCost)
 	r.Get("/costs/summary/daily", handler.GetDailySummary)
 	r.Post("/aggregation/run", handler.ExcuteDailySummaryJob)
+	r.Post("/accounts", handler.CreateAccount)
+	r.Get("/accounts", handler.ListAccounts)
+	r.Get("/account", handler.GetByAWSAccountID)
 	return r
 }
