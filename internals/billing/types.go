@@ -20,11 +20,24 @@ type Repository interface {
 		service string,
 	) (*DailyCostSummary, error)
 
-	// GetCostsByAccount(ctx context.Context, accountID uuid.UUID, startDate, endDate time.Time) ([]CostRecord, error)
 }
 
 type Service struct {
 	repo Repository
+}
+
+type AccountFilter struct {
+    Environment *string
+    IsActive    *bool
+    StartDate   *time.Time
+    EndDate     *time.Time
+}
+
+type CostRecordWithAccount struct {
+    CostRecord
+    AccountName  string
+    Environment  string
+    AWSAccountID string
 }
 
 

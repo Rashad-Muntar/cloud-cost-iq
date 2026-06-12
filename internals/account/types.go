@@ -66,6 +66,7 @@ type Repository interface {
 		ctx context.Context,
         filter AccountFilter,
 	) ([]*Account, error)
+
 }
 
 type CreateAccountInput struct {

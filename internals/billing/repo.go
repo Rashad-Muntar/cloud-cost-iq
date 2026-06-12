@@ -4,7 +4,7 @@ import (
 	"context"
 	"strconv"
 	"time"
-
+	"fmt"
 	"github.com/cloud-cost-iq/internals/db"
 )
 
@@ -96,39 +96,71 @@ for rows.Next() {
 return summary, nil
 }
 
-// internal/api/handlers_account.go
-// Add this handler
+func (r *repository) GetCostsWithAccountFilter(ctx context.Context, filter AccountFilter) ([]CostRecordWithAccount, error) {
+    query := `
+        SELECT 
+            ce.id, ce.account_id, ce.service, ce.region,
+            ce.cost_amount, ce.usage_amount, ce.currency,
+            ce.usage_date, ce.created_at,
+            a.name as account_name,
+            a.environment,
+            a.aws_account_id
+        FROM cost_events ce
+        INNER JOIN accounts a ON ce.account_id = a.id
+        WHERE a.deleted_at IS NULL
+    `
+    
+    args := []interface{}{}
+    argPos := 1
+    
+    if filter.Environment != nil {
+        query += fmt.Sprintf(" AND a.environment = $%d", argPos)
+        args = append(args, *filter.Environment)
+        argPos++
+    }
+    
+    if filter.IsActive != nil {
+        query += fmt.Sprintf(" AND a.is_active = $%d", argPos)
+        args = append(args, *filter.IsActive)
+        argPos++
+    }
+    
+    if filter.StartDate != nil {
+        query += fmt.Sprintf(" AND ce.usage_date >= $%d", argPos)
+        args = append(args, *filter.StartDate)
+        argPos++
+    }
+    
+    if filter.EndDate != nil {
+        query += fmt.Sprintf(" AND ce.usage_date <= $%d", argPos)
+        args = append(args, *filter.EndDate)
+        argPos++
+    }
+    
+    query += " ORDER BY ce.usage_date DESC"
+    
+    rows, err := r.db.Pool.Query(ctx, query, args...)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+    
+    var results []CostRecordWithAccount
+    for rows.Next() {
+        var result CostRecordWithAccount
+        err := rows.Scan(
+            &result.ID, &result.AccountID, &result.Service, &result.Region,
+            &result.CostAmount, &result.UsageAmount, &result.Currency,
+            &result.UsageDate, &result.CreatedAt,
+            &result.AccountName, &result.Environment, &result.AWSAccountID,
+        )
+        if err != nil {
+            return nil, err
+        }
+        results = append(results, result)
+    }
+    
+    return results, nil
+}
 
-
-// // Optional: Add PATCH for partial updates (more RESTful)
-// func (h *Handlers) PatchAccount(w http.ResponseWriter, r *http.Request) {
-//     // Same as UpdateAccount but only updates provided fields
-//     // This is more RESTful than PUT for partial updates
-    
-//     idStr := chi.URLParam(r, "id")
-//     id, err := uuid.Parse(idStr)
-//     if err != nil {
-//         http.Error(w, "Invalid account ID format", http.StatusBadRequest)
-//         return
-//     }
-    
-//     var input account.UpdateAccountInput
-//     if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-//         http.Error(w, "Invalid request body", http.StatusBadRequest)
-//         return
-//     }
-    
-//     input.InternalID = id
-//     updated, err := h.accountService.UpdateAccount(r.Context(), input)
-//     if err != nil {
-//         if strings.Contains(err.Error(), "not found") {
-//             http.Error(w, err.Error(), http.StatusNotFound)
-//         } else {
-//             http.Error(w, err.Error(), http.StatusInternalServerError)
-//         }
-//         return
-//     }
-    
-//     writeJSON(w, http.StatusOK, updated)
-// }
 

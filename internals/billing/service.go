@@ -15,7 +15,7 @@ func NewService(repo Repository) *Service {
 func (s *Service) RecordCost(ctx context.Context, accountID uuid.UUID, service, region string, cost, usage float64,) error {
 	normalizedService := strings.ToLower(service)
 	record := CostRecord{
-		ID: uuid.New().String(),
+		ID: uuid.New(),
 
 		AccountID: accountID,
 		Service: normalizedService,
