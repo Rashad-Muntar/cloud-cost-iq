@@ -1,11 +1,14 @@
 package main
 
 import (
-    "log"
-    "net/http"
+	"context"
+	"log"
+	"net/http"
 
-    "github.com/cloud-cost-iq/config"
-    "github.com/cloud-cost-iq/internals/api"
+	"github.com/cloud-cost-iq/config"
+	"github.com/cloud-cost-iq/internals/aggregation"
+	"github.com/cloud-cost-iq/internals/api"
+	"github.com/cloud-cost-iq/internals/billing"
 	"github.com/cloud-cost-iq/internals/db"
 )
 
@@ -23,8 +26,12 @@ func main() {
 	}
 
 	db.RunMigrations(cfg.DatabaseURL)
+	BillingRepo := billing.NewRepository(dbConn)
+	aggreagteRepo := aggregation.NewRepository(dbConn)
+	billingService := billing.NewService(BillingRepo)
+	aggreagteService := aggregation.NewService(aggreagteRepo)
 
-    router := api.NewRouter()
+    router := api.NewRouter(billingService, aggreagteService)
 
     log.Printf("API listening on :%s", cfg.Port)
 
