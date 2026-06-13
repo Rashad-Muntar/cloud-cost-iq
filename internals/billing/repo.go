@@ -19,13 +19,14 @@ func NewRepository(database *db.Database) Repository {  // ← returns pointer t
 func (repo *repository) InsertCost(ctx context.Context, input CostRecord) error {
 	query := `
 		INSERT INTO cost_events (
-			id, account_id, service, region,
+			id, aws_account_id, service, region,
 			cost_amount, usage_amount,
-			currency, usage_date, created_at
+			currency, usage_date, created_at, idempotency_key
 		)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
 		ON CONFLICT (idempotency_key) DO NOTHING
 	`
+
 	_, err := repo.db.Pool.Exec(ctx, query,
 		input.InternalID,
 		input.AwsAccountID,
@@ -36,6 +37,7 @@ func (repo *repository) InsertCost(ctx context.Context, input CostRecord) error 
 		input.Currency,
 		input.UsageDate,
 		input.CreatedAt,
+		input.IdempotencyKey,
 	)
 
 	return err

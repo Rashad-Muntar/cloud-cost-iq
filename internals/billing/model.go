@@ -7,7 +7,7 @@ import (
 
 type CostRecord struct {
 	InternalID          uuid.UUID `db:"id"`
-    AwsAccountID   string `db:"account_id"`  // ← NOW A UUID, NOT STRING!
+    AwsAccountID   uuid.UUID `db:"account_id"` 
     Service     string    `db:"service"`
     Region      string    `db:"region"`
     CostAmount  float64   `db:"cost_amount"`
@@ -15,4 +15,5 @@ type CostRecord struct {
     Currency    string    `db:"currency"`
     UsageDate   time.Time `db:"usage_date"`
     CreatedAt   time.Time `db:"created_at"`
+    IdempotencyKey string `db:"idempotency_key"`
 }

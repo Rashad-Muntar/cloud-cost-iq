@@ -20,4 +20,5 @@ type RawCostRecord struct {
 	UsageStart time.Time
 
 	UsageEnd time.Time
+	IdempotencyKey string
 }

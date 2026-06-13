@@ -7,7 +7,7 @@ import (
 
 type AccountModel struct {
     internalID           uuid.UUID  `db:"id"`
-    AWSAccountID string     `db:"account_id"`
+    AWSAccountID string     `db:"aws_account_id"`
     Name         string     `db:"name"`
     Environment  string     `db:"environment"` // development, staging, production
     IsActive     bool       `db:"is_active"`

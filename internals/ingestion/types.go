@@ -10,17 +10,12 @@ import (
 
 type NormalizedCostEvent struct {
 	InternalID uuid.UUID
-
+	AwsAccountID uuid.UUID
 	Service string
-
 	Region string
-
 	Cost float64
-
 	Usage float64
-
 	Currency string
-
 	Timestamp time.Time
 	IdempotencyKey string
 }
