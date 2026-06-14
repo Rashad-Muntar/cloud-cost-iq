@@ -6,6 +6,7 @@ import (
 	"github.com/cloud-cost-iq/internals/billing"
 	"github.com/cloud-cost-iq/internals/account"
 	"github.com/cloud-cost-iq/internals/analytics"
+	"github.com/cloud-cost-iq/internals/recommendation"
 )
 
 type Handlers struct {
@@ -13,8 +14,9 @@ type Handlers struct {
 	aggregationHandler *aggregation.Handler
 	accountHandler *account.Handler
 	analyticsHandler *analytics.Handler
+	recommendationHandler *recommendation.Handler
 }
 
-func NewHandlers(billingHandler *billing.Handler, aggregationHandler *aggregation.Handler, analyticsHandler *analytics.Handler, accountHandler *account.Handler) *Handlers {
-	return &Handlers{billingHandler: billingHandler, aggregationHandler: aggregationHandler, analyticsHandler: analyticsHandler, accountHandler:accountHandler}
+func NewHandlers(billingHandler *billing.Handler, aggregationHandler *aggregation.Handler, analyticsHandler *analytics.Handler, accountHandler *account.Handler, recommendationHandler *recommendation.Handler) *Handlers {
+	return &Handlers{billingHandler: billingHandler, aggregationHandler: aggregationHandler, analyticsHandler: analyticsHandler, accountHandler:accountHandler, recommendationHandler:recommendationHandler}
 }
