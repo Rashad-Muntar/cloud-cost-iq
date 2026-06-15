@@ -108,14 +108,7 @@ func (r *repository) List(
 	WHERE account_id=$1
 	ORDER BY created_at DESC
 	`
-
-	rows,
-	err :=
-	r.db.Pool.Query(
-		ctx,
-		query,
-		accountID,
-	)
+	rows, err := r.db.Pool.Query(ctx, query, accountID)
 
 	if err != nil {
 		return nil,
@@ -123,13 +116,10 @@ func (r *repository) List(
 	}
 
 	defer rows.Close()
-
 	var output []Recommendation
 
 	for rows.Next(){
-
 		var x Recommendation
-
 		rows.Scan(
 			&x.ID,
 			&x.AccountID,
@@ -142,11 +132,7 @@ func (r *repository) List(
 			&x.CreatedAt,
 		)
 
-		output =
-		append(
-			output,
-			x,
-		)
+		output = append(output, x)
 	}
 
 	return output,nil

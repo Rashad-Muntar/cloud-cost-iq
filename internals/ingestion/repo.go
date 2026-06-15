@@ -2,6 +2,8 @@ package ingestion
 
 import (
 	"context"
+	// "fmt"
+
 	"github.com/cloud-cost-iq/internals/billing"
 )
 
@@ -21,7 +23,7 @@ func (r *repository) StoreCostEvent(
 ) error {
 	return r.billingRepo.InsertCost(
 		ctx,
-		billing.CostRecord{
+		billing.RecordCostInput{
 			InternalID: event.InternalID,
 			AwsAccountID: event.AwsAccountID,
 			Service: event.Service,

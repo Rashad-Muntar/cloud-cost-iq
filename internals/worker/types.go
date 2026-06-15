@@ -7,5 +7,5 @@ import (
 
 type Job struct {
 	InternalID uuid.UUID
-	Payload ingestion.RawCostRecord
+	Payload ingestion.RawCostEvent
 }

@@ -11,7 +11,7 @@ import (
 type Repository interface {
 	InsertCost(
 		ctx context.Context,
-		input CostRecord,
+		input RecordCostInput,
 	) error
 
 	GetDailyCostSummary(
@@ -35,7 +35,7 @@ type AccountFilter struct {
 }
 
 type CostRecordWithAccount struct {
-    CostRecord
+    CostEvent
     AccountName  string
     Environment  string
     AWSAccountID string
@@ -53,9 +53,9 @@ type DailyCostSummary struct {
 }
 
 type RecordCostInput struct {
-	InternalID string `json:"id"`
+	InternalID uuid.UUID `json:"id"`
 
-	AwsAccountID uuid.UUID `json:"account_id"`
+	AwsAccountID string `json:"account_id"`
 
 	Service string `json:"service"`
 	Region  string `json:"region"`
@@ -67,6 +67,7 @@ type RecordCostInput struct {
 
 	UsageDate time.Time `json:"usage_date"`
 	CreatedAt time.Time `json:"created_at"`
+	IdempotencyKey string
 }
 
 

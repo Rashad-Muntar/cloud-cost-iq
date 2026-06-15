@@ -1,8 +1,11 @@
 package ingestion
 
-import "time"
+import (
+	"time"
 
-type RawCostRecord struct {
+)
+
+type RawCostEvent struct {
 	Provider string // AWS
 
 	AwsAccountID string

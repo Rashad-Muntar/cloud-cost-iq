@@ -70,11 +70,9 @@ type Repository interface {
 }
 
 type CreateAccountInput struct {
-	AwsAccountID string
-	Name string
-	Environment Environment
-    CreatedAt time.Time
-    UpdatedAt time.Time
+    AwsAccountID string      `json:"aws_account_id"`
+    Name         string      `json:"name"`
+    Environment  Environment `json:"environment"`
 }
 
 type Service struct {

@@ -1,5 +1,7 @@
 package analytics
 
+import "github.com/google/uuid"
+
 type ServiceBreakdown struct {
 	Service string `json:"service"`
 
@@ -9,5 +11,6 @@ type ServiceBreakdown struct {
 type CostSummary struct {
 	TotalCost float64 `json:"total_cost"`
 
-	Breakdown []ServiceBreakdown `json:"breakdown"`
+	Breakdown  []ServiceBreakdown `json:"breakdown"`
+	InternalID uuid.UUID
 }

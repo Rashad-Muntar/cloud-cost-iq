@@ -2,8 +2,10 @@ package billing
 
 import (
 	"context"
-	"time"
+	"fmt"
 	"strings"
+	"time"
+
 	"github.com/google/uuid"
 )
 
@@ -12,9 +14,9 @@ func NewService(repo Repository) *Service {
 	return &Service{repo: repo}
 }
 
-func (s *Service) RecordCost(ctx context.Context, accountID uuid.UUID, service, region string, cost, usage float64,) error {
+func (s *Service) RecordCost(ctx context.Context, accountID string, service, region string, cost, usage float64,) error {
 	normalizedService := strings.ToLower(service)
-	record := CostRecord{
+	record := RecordCostInput{
 		InternalID: uuid.New(),
 
 		AwsAccountID: accountID,
@@ -25,10 +27,11 @@ func (s *Service) RecordCost(ctx context.Context, accountID uuid.UUID, service, 
 		UsageAmount: usage,
 
 		Currency: "USD",
-
+                   
 		UsageDate: time.Now(),
 		CreatedAt: time.Now(),
 	}
+	fmt.Println("RED",record)
 	
 	return s.repo.InsertCost(ctx, record)
 }

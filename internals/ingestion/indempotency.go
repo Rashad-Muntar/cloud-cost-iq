@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-func GenerateIdempotencyKey(r RawCostRecord) string {
+func GenerateIdempotencyKey(r RawCostEvent) string {
 
 	raw := fmt.Sprintf(
 		"%s:%s:%s:%s:%f:%f:%d",

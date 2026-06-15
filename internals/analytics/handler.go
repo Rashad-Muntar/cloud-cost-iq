@@ -24,70 +24,24 @@ func (h *Handler) Summary(
 	w http.ResponseWriter,
 	r *http.Request,
 ){
+	
+	accountID := r.URL.Query().Get("accountId")
 
-	accountID :=
-		r.URL.Query().
-			Get(
-				"accountId",
-			)
+	to := time.Now()
 
-	to :=
-		time.Now()
+	from :=to.AddDate(0, 0, -30)
 
-	from :=
-		to.AddDate(
-			0,
-			0,
-			-30,
-		)
-
-	result,
-	err :=
-		h.service.
-			GetCostSummary(
-				r.Context(),
+	result, err := h.service.GetCostSummary(r.Context(),
 				CostQuery{
-					AwsAccountID:
-						accountID,
-
-					From:
-						from,
-
-					To:
-						to,
+					AwsAccountID:accountID,
+					From: from,
+					To: to,
 				},
 			)
-
 	if err != nil {
-
-		http.Error(
-			w,
-			err.Error(),
-			500,
-		)
-
+		http.Error(w, err.Error(), 500)
 		return
 	}
 
 	shared.WriteJSON(w, http.StatusOK, result)
 }
-
-// analyticsRepo :=
-// 	analytics.NewRepository(
-// 		database,
-// 	)
-
-// analyticsService :=
-// 	analytics.NewService(
-// 		analyticsRepo,
-// 	)
-
-// analyticsHandler :=
-// 	analytics.NewHandler(
-// 		analyticsService,
-// 	)
-
-// r.Get(
-// 	"/analytics/summary",
-// 	analyticsHandler.Summary,
-// )

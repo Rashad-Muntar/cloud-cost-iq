@@ -1,5 +1,6 @@
 -- +goose Up
-CREATE TABLE accounts (
+
+CREATE TABLE IF NOT EXISTS accounts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     aws_account_id VARCHAR(12) UNIQUE NOT NULL,
     name VARCHAR(255) NOT NULL,
@@ -10,7 +11,7 @@ CREATE TABLE accounts (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE cost_events (
+CREATE TABLE IF NOT EXISTS cost_events (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     account_id UUID NOT NULL REFERENCES accounts(id) ON DELETE RESTRICT,
     service TEXT NOT NULL,
@@ -23,7 +24,7 @@ CREATE TABLE cost_events (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE daily_cost_summaries (
+CREATE TABLE IF NOT EXISTS daily_cost_summaries (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     account_id UUID NOT NULL REFERENCES accounts(id) ON DELETE RESTRICT,
     service TEXT NOT NULL,
@@ -43,6 +44,6 @@ CREATE INDEX idx_cost_events_service ON cost_events(service);
 CREATE INDEX idx_daily_summaries_account_date ON daily_cost_summaries(account_id, summary_date DESC);
 
 -- +goose Down
-DROP TABLE daily_cost_summaries;
-DROP TABLE cost_events;
-DROP TABLE accounts;
+DROP TABLE IF EXISTS daily_cost_summaries;
+DROP TABLE IF EXISTS cost_events;
+DROP TABLE IF EXISTS accounts;

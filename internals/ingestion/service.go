@@ -2,6 +2,7 @@ package ingestion
 
 import (
 	"context"
+
 	"github.com/google/uuid"
 )
 
@@ -17,11 +18,12 @@ func NewService(repo Repository) *Service {
 
 func (s *Service) Ingest(
 	ctx context.Context,
-	raw RawCostRecord,
+	raw RawCostEvent,
 	id uuid.UUID,
 ) error {
 
 	event := Transform(raw, id)
+	
 
 	return s.repo.StoreCostEvent(ctx, event)
 }

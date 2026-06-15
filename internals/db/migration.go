@@ -1,9 +1,11 @@
 package db
 
 import (
- 	"database/sql"
-    "github.com/pressly/goose/v3"
-    _ "github.com/jackc/pgx/v5/stdlib" 
+	"database/sql"
+	"fmt"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/pressly/goose/v3"
 )
 
 func RunMigrations(databaseURL string) error {
@@ -12,7 +14,9 @@ func RunMigrations(databaseURL string) error {
         return err
     }
 
-    return goose.Up(db, "migrations")
+    migration := goose.Up(db, "migrations")
+    fmt.Println(migration)
+    return migration
 }
 
 func ResetMigrations(databaseURL string) error {
@@ -25,6 +29,7 @@ func ResetMigrations(databaseURL string) error {
 		return err
 	}
 	// then runs them all again fresh
+   
 	return goose.Up(db, "migrations")
 }
 

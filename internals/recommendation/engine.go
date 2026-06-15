@@ -2,8 +2,11 @@ package recommendation
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	"github.com/cloud-cost-iq/internals/analytics"
+	"github.com/cloud-cost-iq/internals/shared"
 )
 
 type Engine struct {
@@ -11,43 +14,61 @@ type Engine struct {
 }
 
 func NewEngine(
-	a *analytics.Service,
+	analytics *analytics.Service,
 ) *Engine {
 
 	return &Engine{
-		analytics: a,
+		analytics: analytics,
 	}
 }
 
 func (e *Engine) Generate(
 	ctx context.Context,
 	accountID string,
+	from string,
+	to string,
 )(
 	[]Recommendation,
 	error,
 ){
+	
+	var parsedFrom time.Time
+	var parsedTo time.Time
 
-	summary,
-	err :=
-	e.analytics.
-	GetCostSummary(
-		ctx,
+if from != "" {
+    parsed, err := shared.ParseDate(from)
+    if err != nil {
+      return nil, err
+    }
+    parsedFrom = parsed  
+}
 
-		analytics.CostQuery{
+if to != "" {
+    parsed, err := shared.ParseDate(to)
+      if err != nil {
+      return nil, err
+    }
+    parsedTo = shared.EndOfDay(parsed)
+}
+
+	fmt.Println("Reco Service hit", parsedFrom, parsedTo)
+	summary, err := e.analytics.GetCostSummary(ctx, analytics.CostQuery{
 			AwsAccountID: accountID,
+			From: parsedFrom,
+			To: parsedTo,
 		},
 	)
-
+	fmt.Println("Summary", summary)
 	if err != nil {
-		return nil,
-		err
+		return nil, err
 	}
 
 	var output []Recommendation
 	for _, service := range summary.Breakdown {
-		if service.Service == "EC2" && service.Cost < 20 {
+		fmt.Println("Service in", service)
+		if service.Service == "EC2" && service.Cost > 20 {
 			output = append(output, Recommendation{
-					AccountID: accountID,
+					AccountID: summary.InternalID,
 					Type: IdleCompute,
 					Title: "Low EC2 utilization",
 					Description: "review EC2 usage",
@@ -55,10 +76,12 @@ func (e *Engine) Generate(
 					Severity: Medium,
 					Status: Open,
 				},
+			
 			)
+			fmt.Println(output)
 		}
 	}
-
+	
 	return output,nil
 }
 

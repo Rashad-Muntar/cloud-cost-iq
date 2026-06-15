@@ -1,6 +1,8 @@
 package recommendation
 
-import "context"
+import (
+	"context"
+)
 
 type Service struct {
 	engine *Engine
@@ -24,31 +26,18 @@ func NewService(
 func (s *Service) Generate(
 	ctx context.Context,
 	accountID string,
+	from string,
+	to string,
 ) error {
-
-	recs,
-	err :=
-	s.engine.
-	Generate(
-		ctx,
-		accountID,
-	)
+	
+	recs, err := s.engine.Generate(ctx,accountID, from, to,)
 
 	if err != nil {
 		return err
 	}
 
-	for _,
-	r :=
-	range recs {
-
-		err =
-		s.repo.
-		Create(
-			ctx,
-			r,
-		)
-
+	for _, r := range recs {
+		err = s.repo.Create(ctx, r)
 		if err != nil {
 			return err
 		}

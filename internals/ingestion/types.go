@@ -10,7 +10,7 @@ import (
 
 type NormalizedCostEvent struct {
 	InternalID uuid.UUID
-	AwsAccountID uuid.UUID
+	AwsAccountID string
 	Service string
 	Region string
 	Cost float64

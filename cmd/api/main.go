@@ -4,8 +4,8 @@ import (
 	"context"
 	"log"
 	"net/http"
-
-	// "github.com/google/uuid"
+"time"
+	"github.com/google/uuid"
 
 	"github.com/cloud-cost-iq/config"
 	"github.com/cloud-cost-iq/internals/account"
@@ -15,6 +15,7 @@ import (
 	"github.com/cloud-cost-iq/internals/billing"
 	"github.com/cloud-cost-iq/internals/db"
 	"github.com/cloud-cost-iq/internals/ingestion"
+	"github.com/cloud-cost-iq/internals/recommendation"
 	"github.com/cloud-cost-iq/internals/worker"
 )
 
@@ -33,11 +34,6 @@ func main() {
 	// db.ResetMigrations(cfg.DatabaseURL)
 	db.RunMigrations(cfg.DatabaseURL)
 	
-	// BillingRepo := billing.NewRepository(dbConn)
-	// aggreagteRepo := aggregation.NewRepository(dbConn)
-	// ingestionRepo := ingestion.NewRepository(BillingRepo)
-	// billingService := billing.NewService(BillingRepo)
-	// analyticsRepo := analytics.NewRepository(dbConn)
 
 	// Repos
 	billingRepo := billing.NewRepository(dbConn)
@@ -45,10 +41,8 @@ func main() {
 	ingestionRepo := ingestion.NewRepository(billingRepo)
 	analyticsRepo := analytics.NewRepository(dbConn)
 	accountRepo := account.NewRepository(dbConn)
+	recommendationRepo := recommendation.NewRepository(dbConn)
 
-	// ingestionService := ingestion.NewService(ingestionRepo)
-	// aggregateService := aggregation.NewService(aggreagteRepo)
-	// analyticsService := analytics.NewService(analyticsRepo)
 
 	//Services
 	billingService := billing.NewService(billingRepo)
@@ -56,12 +50,15 @@ func main() {
 	ingestionService := ingestion.NewService(ingestionRepo)
 	analyticsService := analytics.NewService(analyticsRepo)
 	accountService := account.NewService(accountRepo)
-
+	recommendationEngine := recommendation.NewEngine(analyticsService)
+	recommendationService := recommendation.NewService(recommendationEngine, recommendationRepo)
 	// Handlers
+	
 	billingHandler := billing.NewHandler(billingService)
 	aggregationHandler := aggregation.NewHandler(aggregateService)
 	analyticsHandler := analytics.NewHandler(analyticsService)
 	accountHandler := account.NewHandler(accountService)
+	recommendationHandler := recommendation.NewHandler(recommendationService)
 
 
 
@@ -73,29 +70,31 @@ func main() {
 
 	pool.Start(ctx)
 
-	// queue.Push(worker.Job{
-	// InternalID: uuid.New(),
+	queue.Push(worker.Job{
+	InternalID: uuid.New(),
 
-	// Payload: ingestion.RawCostRecord{
-	// 	Provider: "AWS",
+	Payload: ingestion.RawCostEvent{
+		Provider: "AWS",
 
-	// 	AwsAccountID: uuid.NewString(),
+		AwsAccountID: "482836517294",
 
-	// 	Service: "EC2",
+		Service: "EC2",
 
-	// 	Region: "us-east-1",
+		Region: "us-east-1",
 
-	// 	UsageAmount: 10,
+		UsageAmount: 10,
 
-	// 	CostAmount: 2.5,
+		CostAmount: 2.5,
 
-	// 	Currency: "USD",
-	// },
-	// })
+		Currency: "USD",
+		UsageStart:  time.Now().AddDate(0, 0, -1), // ← yesterday
+        UsageEnd:    time.Now(), 
+	},
+	
+	})
 
-    // router := api.NewRouter(billingService, aggregateService, analyticsService)
 
-	router := api.NewRouter(billingHandler, aggregationHandler, analyticsHandler, accountHandler)
+	router := api.NewRouter(billingHandler, aggregationHandler, analyticsHandler, accountHandler, recommendationHandler)
 
 
 

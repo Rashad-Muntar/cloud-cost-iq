@@ -2,6 +2,7 @@ package worker
 
 import (
 	"context"
+	// "fmt"
 	"time"
 
 	"github.com/cloud-cost-iq/internals/ingestion"
@@ -21,11 +22,11 @@ func NewProcessor(
 	}
 }
 
+
 func (p *Processor) Process(
 	ctx context.Context,
 	job Job,
 ) error {
-
 	maxRetries := 3
 
 	var err error

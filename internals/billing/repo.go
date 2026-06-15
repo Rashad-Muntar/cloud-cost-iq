@@ -16,33 +16,36 @@ func NewRepository(database *db.Database) Repository {  // ← returns pointer t
     return &repository{db: database}
 }
 
-func (repo *repository) InsertCost(ctx context.Context, input CostRecord) error {
-	query := `
-		INSERT INTO cost_events (
-			id, aws_account_id, service, region,
-			cost_amount, usage_amount,
-			currency, usage_date, created_at, idempotency_key
-		)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
-		ON CONFLICT (idempotency_key) DO NOTHING
-	`
+func (repo *repository) InsertCost(ctx context.Context, input RecordCostInput) error {
+    AwsAccountID, err := repo.GetAccountUUIDByAWSID(ctx, input.AwsAccountID)
+    if err != nil {
+        return fmt.Errorf("InsertCost: %w", err)
+    }
+	fmt.Println("Found Account ID")
+    query := `
+        INSERT INTO cost_events (
+            id, account_id, service, region,
+            cost_amount, usage_amount,
+            currency, usage_date, created_at, idempotency_key
+        )
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+        ON CONFLICT (idempotency_key) DO NOTHING
+    `
 
-	_, err := repo.db.Pool.Exec(ctx, query,
-		input.InternalID,
-		input.AwsAccountID,
-		input.Service,
-		input.Region,
-		input.CostAmount,
-		input.UsageAmount,
-		input.Currency,
-		input.UsageDate,
-		input.CreatedAt,
-		input.IdempotencyKey,
-	)
-
-	return err
+    _, err = repo.db.Pool.Exec(ctx, query,
+        input.InternalID,
+        AwsAccountID,  // ← UUID now, not the AWS string
+        input.Service,
+        input.Region,
+        input.CostAmount,
+        input.UsageAmount,
+        input.Currency,
+        input.UsageDate,
+        time.Now(),         // ← set CreatedAt here directly, don't rely on input
+        input.IdempotencyKey,
+    )
+    return nil
 }
-
 
 func (repo *repository) GetDailyCostSummary(
 	ctx context.Context,
@@ -166,4 +169,14 @@ func (r *repository) GetCostsWithAccountFilter(ctx context.Context, filter Accou
     return results, nil
 }
 
+
+func (repo *repository) GetAccountUUIDByAWSID(ctx context.Context, awsAccountID string) (string, error) {
+    var internalID string
+    query := `SELECT id FROM accounts WHERE aws_account_id = $1`
+    err := repo.db.Pool.QueryRow(ctx, query, awsAccountID).Scan(&internalID)
+    if err != nil {
+        return "", fmt.Errorf("account not found for aws_account_id %s: %w", awsAccountID, err)
+    }
+    return internalID, nil
+}
 

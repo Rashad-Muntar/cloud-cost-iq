@@ -19,14 +19,15 @@ func NewRepository(database *db.Database) Repository {
 func (r *repository) Create(ctx context.Context, input Account) (*Account, error) {
     query := `
         INSERT INTO accounts (
-            id, name, aws_account_id, created_at, updated_at
-        ) VALUES ($1, $2, $3, $4, $5)
+            id, name, aws_account_id, environment, created_at, updated_at
+        ) VALUES ($1, $2, $3, $4, $5, $6)
     `
     var account Account
     _, err := r.db.Pool.Exec(ctx, query,
         input.InternalID,
         input.Name,
         input.AwsAccountID,
+        input.Environment,
         input.CreatedAt,
         input.UpdatedAt,
 

@@ -1,9 +1,11 @@
 package account
 
 import (
+	"fmt"
 	"net/http"
-	
+
 	"encoding/json"
+
 	"github.com/cloud-cost-iq/internals/shared"
 )
 
@@ -21,8 +23,9 @@ func NewHandler(
 }
 
 func (h *Handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
+    fmt.Println("Handler hit")
     var input CreateAccountInput
-    
+    fmt.Println("Input from handler", input)
     if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
         http.Error(w, "Invalid request body", http.StatusBadRequest)
         return

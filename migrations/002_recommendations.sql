@@ -1,4 +1,6 @@
-CREATE TABLE recommendations (
+-- +goose Up
+
+CREATE TABLE IF NOT EXISTS recommendations (
 
     id UUID PRIMARY KEY,
 
@@ -28,3 +30,4 @@ CREATE TABLE recommendations (
 
 CREATE INDEX idx_rec_account
 ON recommendations(account_id);
+ 

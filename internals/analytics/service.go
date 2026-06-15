@@ -23,9 +23,5 @@ func (s *Service) GetCostSummary(
 	error,
 ){
 
-	return s.repo.
-		GetCostSummary(
-			ctx,
-			query,
-		)
+	return s.repo.GetCostSummary(ctx, query,)
 }
