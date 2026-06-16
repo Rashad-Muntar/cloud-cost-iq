@@ -4,13 +4,15 @@ import (
 	"context"
 	"log"
 	"net/http"
-"time"
+	"time"
+
 	"github.com/google/uuid"
 
 	"github.com/cloud-cost-iq/config"
 	"github.com/cloud-cost-iq/internals/account"
 	"github.com/cloud-cost-iq/internals/aggregation"
 	"github.com/cloud-cost-iq/internals/analytics"
+	"github.com/cloud-cost-iq/internals/anomaly"
 	"github.com/cloud-cost-iq/internals/api"
 	"github.com/cloud-cost-iq/internals/billing"
 	"github.com/cloud-cost-iq/internals/db"
@@ -42,7 +44,7 @@ func main() {
 	analyticsRepo := analytics.NewRepository(dbConn)
 	accountRepo := account.NewRepository(dbConn)
 	recommendationRepo := recommendation.NewRepository(dbConn)
-
+	anomalyRepo := anomaly.NewRepository(dbConn)
 
 	//Services
 	billingService := billing.NewService(billingRepo)
@@ -52,6 +54,7 @@ func main() {
 	accountService := account.NewService(accountRepo)
 	recommendationEngine := recommendation.NewEngine(analyticsService)
 	recommendationService := recommendation.NewService(recommendationEngine, recommendationRepo)
+	anomalyService := anomaly.NewService(anomalyRepo, analyticsRepo)
 	// Handlers
 	
 	billingHandler := billing.NewHandler(billingService)
@@ -59,7 +62,7 @@ func main() {
 	analyticsHandler := analytics.NewHandler(analyticsService)
 	accountHandler := account.NewHandler(accountService)
 	recommendationHandler := recommendation.NewHandler(recommendationService)
-
+	anomalyHandler := anomaly.NewHandler(anomalyService)
 
 
 	queue := worker.NewQueue(1000)
@@ -94,9 +97,7 @@ func main() {
 	})
 
 
-	router := api.NewRouter(billingHandler, aggregationHandler, analyticsHandler, accountHandler, recommendationHandler)
-
-
+	router := api.NewRouter(billingHandler, aggregationHandler, analyticsHandler, accountHandler, recommendationHandler, anomalyHandler)
 
     log.Printf("API listening on :%s", cfg.Port)
 

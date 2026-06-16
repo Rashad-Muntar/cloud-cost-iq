@@ -12,10 +12,14 @@ type Repository interface {
 	GetCostSummary(
 		ctx context.Context,
 		query CostQuery,
-	) (
-		*CostSummary,
-		error,
-	)
+	) (*CostSummary, error,)
+	TodayCost(ctx context.Context,accountID string, service string,)(float64, error,)
+	HistoricalDailyCosts(
+		ctx context.Context,
+		accountID string,
+		service string,
+	)([]float64, error,)
+
 }
 
 type repository struct {
@@ -89,4 +93,95 @@ func (r *repository) GetCostSummary(ctx context.Context, query CostQuery,) (
 
 	result.InternalID = internalAccountID
 	return result, nil
+}
+
+func (r *repository,) TodayCost(
+	ctx context.Context,
+	accountID string,
+	service string,
+)(float64, error,
+) {
+	var internalAccountID uuid.UUID
+	accountQuery := `SELECT id FROM accounts WHERE aws_account_id = $1`
+	err := r.db.Pool.QueryRow(ctx, accountQuery, accountID).Scan(&internalAccountID)
+	if err != nil {
+		return 0, err
+	}
+	fmt.Println(internalAccountID)
+	query := `
+	SELECT COALESCE(SUM(cost_amount),0)
+		FROM cost_events
+		WHERE account_id=$1
+		AND service=$2
+		AND DATE(
+			usage_date
+		)=CURRENT_DATE
+	`
+
+	var total float64
+
+	err = r.db.Pool.QueryRow(
+		ctx,
+		query,
+		internalAccountID,
+		service,
+	).Scan(&total,)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return total, nil
+}
+
+func (
+	r *repository,
+) HistoricalDailyCosts(
+	ctx context.Context,
+	accountID string,
+	service string,
+)([]float64, error,) {
+
+	var internalAccountID uuid.UUID
+	accountQuery := `SELECT id FROM accounts WHERE aws_account_id = $1`
+	err := r.db.Pool.QueryRow(ctx, accountQuery, accountID).Scan(&internalAccountID)
+	if err != nil {
+		return nil, err
+	}
+	
+	query := ` SELECT COALESCE(SUM(cost_amount),0)
+		FROM cost_events
+			WHERE account_id=$1
+			AND service=$2
+			AND usage_date
+			>= NOW()
+			- INTERVAL '30 days'
+			GROUP BY DATE(
+				usage_date
+			)
+		ORDER BY DATE(
+			usage_date
+		)
+	`
+
+	rows, err := r.db.Pool.Query(ctx, query, internalAccountID, service,)
+
+	if err != nil {
+		return nil,
+			err
+	}
+
+	defer rows.Close()
+
+	var costs []float64
+
+	for rows.Next() {
+		var daily float64
+		err =rows.Scan(&daily,)
+		if err != nil {return nil, err }
+		costs = append(costs, daily,)
+	}
+
+	return costs,
+		nil
 }

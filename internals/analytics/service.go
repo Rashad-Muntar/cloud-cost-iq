@@ -25,3 +25,24 @@ func (s *Service) GetCostSummary(
 
 	return s.repo.GetCostSummary(ctx, query,)
 }
+
+func (s *Service,) HistoricalDailyCosts(
+	ctx context.Context,
+	accountID string,
+	service string,
+)([]float64, error,){
+
+	return s.repo.HistoricalDailyCosts(ctx, accountID,service,)
+}
+
+func (s *Service,) TodayCost(
+	ctx context.Context,
+
+	accountID string,
+
+	service string,
+)(float64, error,
+){
+
+	return s.repo.TodayCost(ctx,accountID,service,)
+}

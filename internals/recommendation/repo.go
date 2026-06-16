@@ -10,18 +10,9 @@ import (
 
 type Repository interface {
 
-	Create(
-		ctx context.Context,
-		r Recommendation,
-	) error
+	Create(ctx context.Context, r Recommendation,) error
 
-	List(
-		ctx context.Context,
-		accountID string,
-	)(
-		[]Recommendation,
-		error,
-	)
+	List(ctx context.Context, accountID string,)([]Recommendation, error,)
 }
 
 type repository struct {
@@ -32,9 +23,7 @@ func NewRepository(
 	db *db.Database,
 ) Repository {
 
-	return &repository{
-		db: db,
-	}
+	return &repository{db: db,}
 }
 
 func (r *repository) Create(
@@ -85,12 +74,7 @@ func (r *repository) Create(
 	return err
 }
 
-func (r *repository) List(
-	ctx context.Context,
-	accountID string,
-)(
-	[]Recommendation,
-	error,
+func (r *repository) List(ctx context.Context, accountID string,)([]Recommendation, error,
 ){
 
 	query := `
